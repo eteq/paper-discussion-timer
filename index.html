@@ -1,0 +1,111 @@
+<html>
+	<head>
+	<title>YODA Timer</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+
+	<script>
+	var targetdate = null;
+	var warndate = null;
+	var interval = null;
+	
+	function startCountdown(alarmmin, warnmin) {
+		if (interval != null) {
+			window.clearInterval(interval);
+			interval = null;
+		}
+	  
+		targetdate = new Date(Date.now() + 60000 * alarmmin);
+		warndate = new Date(Date.now() + 60000 * warnmin);
+		interval = self.setInterval(function(){countdown()},1000);
+	}
+	
+	function countdown() {
+		var sec, min, timesup;
+		var now = Date.now();
+		var dt = targetdate - now;
+		var wdt = warndate - now;
+	  
+	  
+		if (dt <= 0) {
+			window.clearInterval(interval);
+			interval = null;
+			sec = 0;
+			min = 0;
+			timesup = true;
+		} else {
+			sec = (dt / 1000)%60;
+			min = (dt / 1000 - sec)/60;
+			timesup = false;
+		}
+		
+		var cnt = document.getElementById("count");
+		cnt.innerHTML = min +" min " + Math.round(sec) + "sec";
+		
+		if (timesup) {triggerAlarm();}
+		
+		//wdt is null if warndate is null
+		if ((warndate != null) && (wdt <=0)) {
+			triggerWarning();
+			warndate = null;
+		}
+	}
+	
+	function triggerAlarm() {
+		var v1 = document.getElementById("endsnd");
+		v1.currentTime = 0;
+		v1.play();
+	}
+	
+	function triggerWarning() {
+		var v2 = document.getElementById("qtimesnd");
+		v2.currentTime = 0;
+		v2.play();
+	}
+	
+	function silenceAlarm() {
+		var v1 = document.getElementById("endsnd");
+		var v2 = document.getElementById("qtimesnd");
+		v1.pause();
+		v2.pause();
+	}
+	
+	function clickStart() {
+        silenceAlarm(); // make sure the alarm is off
+
+		var alin = document.getElementById("nmintxt");
+		var wain = document.getElementById("warntimetxt");
+		
+		startCountdown(parseFloat(alin.value), parseFloat(wain.value));
+	}
+	
+	</script>
+	<body>
+		
+  <div class="outerframe">
+  
+  <div class="content">
+			<h1>Paper Discussion Timer</h1>
+			
+			<span id="count">Timer not yet started!</span><br>
+			<input type="button" value="Start Timer" 
+			       onclick="clickStart()">
+			<br>Alarm:<input type="text" value="15" id="nmintxt"> min countdown.
+			<br>Warning:<input type="text" value="10" id="warntimetxt"> min into countdown.
+			
+			<br><input type="button" value="Silence Alarms" onclick="silenceAlarm()">
+			
+			<audio id="endsnd" loop>
+				  <source src="end-sm.ogg" type="audio/ogg">
+				  <source src="end-sm.mp3" type="audio/mpeg">
+				  Note that you won't get alarm sounds, because your browser doesn't support HTML5.
+			</audio>
+			<audio id="qtimesnd">
+				  <source src="qtime.ogg" type="audio/ogg">
+				  <source src="qtime.mp3" type="audio/mpeg">
+			</audio>
+			
+		</div>
+		</div>
+	</body>
+</html>
